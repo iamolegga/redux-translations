@@ -1,6 +1,6 @@
 {
   "name": "redux-translations",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "translations utils for react-redux apps",
   "main": "index.js",
   "scripts": {
