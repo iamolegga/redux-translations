@@ -1,0 +1,24 @@
+{
+  "name": "redux-translations",
+  "version": "0.0.1",
+  "description": "translations utils for react-redux apps",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamolegga/redux-translations.git"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "translations"
+  ],
+  "author": "Oleg Repin <iamolegga@gmail.com> (http://github.com/iamolegga)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iamolegga/redux-translations/issues"
+  },
+  "homepage": "https://github.com/iamolegga/redux-translations#readme"
+}
