@@ -40,7 +40,7 @@ const store = createStore(rootReducer, applyMiddleware(translationsMiddleware));
 Wrap component with `withTranslations` function:
 
 ```jsx
-import { withTranslations } from 'redux-translations';
+import withTranslations from 'redux-translations';
 
 const MyComponent = ({
   dictionary,
@@ -69,6 +69,6 @@ const MyComponentTranslated = withTranslations(MyComponent);
 You can change language not only in react-component:
 
 ```js
-import { switchLangAction } from 'redux-translations';
-store.dispatch(switchLangAction('en'));
+import { switchLangActionCreator } from 'redux-translations';
+store.dispatch(switchLangActionCreator('en'));
 ```
