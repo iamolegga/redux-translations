@@ -24,7 +24,6 @@ export interface IState<D> {
   loadingLang: string|null;
 }
 
-
 export type requestFunc = (language: string) => Promise<Object>
 
 export interface ITranslated {
@@ -35,39 +34,69 @@ export interface ITranslated {
 }
 
 
+/**
+ * Type for FSA Action
+ */
 const switchLangActionType: string = 'reduxTranslations__switchLang';
 
 
-// redux action creator
+/**
+ * FSA Action creator
+ * @param {string} language string
+ * @return FSA-Action
+ */
 export const switchLangActionCreator: IActionCreator = language => ({
   type: switchLangActionType,
   payload: language,
 });
 
 
-// list of mounted components
+/**
+ * List of mounted components that depends on translations
+ */
 const translatedComponents = new Set<React.Component<any>>();
+
+
+/**
+ * Update mounted components that depends on translations
+ */
 function updateTranslatedComponents() {
   translatedComponents.forEach(comp => comp.forceUpdate());
 };
 
 
-// default options for createTranslationsMiddleware function
+/**
+ * Default options for createTranslationsMiddleware function
+ * @property {boolean} cache - use cached dictionary
+ * @property {boolean} updateCacheOnSwitch - request dictionary again if cached
+ */
 const defaultOptions: IOptions = {
   cache: true,
   updateCacheOnSwitch: false,
 };
 
 
-// initial translations state
+/**
+ * Initial translations state
+ * @property {Object} dictionaries - hash-table of dictionaries, where key is language name and value is dictionary
+ * @property {string} currentLang - current language with fetched dictionary
+ * @property {string} loadingLang - language that user is switching to, but not fetched dictionary yet
+ */
 const __state: IState<object> = {
-  // map of dictionaries
   dictionaries: {},
   currentLang: null,
   loadingLang: null,
 };
 
 
+/**
+ * Translations middleware creator
+ * @param {function} requestFunc - function, that takes name of language and returns Promise<Dictionary>
+ * @param {Object} passedOptions - options
+ * @param {boolean} passedOptions.cache - use cached dictionary
+ * @param {boolean} passedOptions.updateCacheOnSwitch - request dictionary again if cached
+ * @param {void} passedOptions.switchCallback - callback from language on switching
+ */
 export function createTranslationsMiddleware(
   requestFunc: requestFunc,
   passedOptions: IOptions = {},
@@ -137,10 +166,15 @@ export function createTranslationsMiddleware(
 };
 
 
-// Function that takes Component class or function
-// and returns the new PureComponent class that render
-// the first one with additional props:
-// switchLang, currentLang, loadingLang, dictionary
+/**
+ * Function that takes Component class or function and returns the new PureComponent class that render the first one with additional props:
+ * - switchLang,
+ * - currentLang,
+ * - loadingLang,
+ * - dictionary.
+ * @param {React.ComponentClass} Component - component that depends on props, listed above
+ * @return {React.ComponentClass}
+ */
 export default function withTranslations<P>(
   Component: React.ComponentClass<P & ITranslated>
 ): React.ComponentClass<P> {
@@ -178,7 +212,11 @@ export default function withTranslations<P>(
   };
 }
 
-
+/**
+ * Get component name
+ * @param Component 
+ * @return {string}
+ */
 function getDisplayName(Component) {
   return Component.displayName || Component.name || 'Component';
 }
