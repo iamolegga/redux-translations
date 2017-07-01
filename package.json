@@ -2,9 +2,11 @@
   "name": "redux-translations",
   "version": "0.0.2",
   "description": "translations utils for react-redux apps",
-  "main": "index.js",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc -p ./tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,20 @@
   "bugs": {
     "url": "https://github.com/iamolegga/redux-translations/issues"
   },
-  "homepage": "https://github.com/iamolegga/redux-translations#readme"
+  "homepage": "https://github.com/iamolegga/redux-translations#readme",
+  "devDependencies": {
+    "@types/redux": "^3.6.0",
+    "react": "^15.6.1",
+    "react-redux": "^5.0.5",
+    "redux": "^3.7.1"
+  },
+  "peerDependencies": {
+    "react": "^15.6.1",
+    "react-redux": "^5.0.5"
+  },
+  "dependencies": {
+    "@types/react": "^15.0.34",
+    "@types/react-redux": "^4.4.45",
+    "typescript": "^2.4.1"
+  }
 }

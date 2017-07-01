@@ -1,33 +1,63 @@
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 
+export interface Action {
+  type: string;
+  payload: string;
+};
 
-const switchLangActionType = 'reduxTranslations__switchLang';
+export type IActionCreator = (payload: string) => Action;
+
+export interface IOptions {
+  cache?: boolean;
+  updateCacheOnSwitch?: boolean;
+}
+
+export interface IState<D> {
+  dictionaries: {
+    [language: string]: D
+  },
+  currentLang: string|null;
+  loadingLang: string|null;
+}
+
+
+export type requestFunc = (language: string) => Promise<Object>
+
+export interface ITranslated {
+  currentLang: string;
+  loadingLang: string;
+  dictionary: object;
+  switchLang: (language: string) => void;
+}
+
+
+const switchLangActionType: string = 'reduxTranslations__switchLang';
 
 
 // redux action creator
-export const switchLangActionCreator = language => ({
+export const switchLangActionCreator: IActionCreator = language => ({
   type: switchLangActionType,
   payload: language,
 });
 
 
 // list of mounted components
-const translatedComponents = new Set();
+const translatedComponents = new Set<React.Component<any>>();
 function updateTranslatedComponents() {
   translatedComponents.forEach(comp => comp.forceUpdate());
 };
 
 
 // default options for createTranslationsMiddleware function
-const defaultOptions = {
+const defaultOptions: IOptions = {
   cache: true,
   updateCacheOnSwitch: false,
 };
 
 
 // initial translations state
-const __state = {
+const __state: IState<object> = {
   // map of dictionaries
   dictionaries: {},
   currentLang: null,
@@ -36,11 +66,11 @@ const __state = {
 
 
 export function createTranslationsMiddleware(
-  requestFunc,
-  passedOptions = {},
+  requestFunc: requestFunc,
+  passedOptions: IOptions = {},
 ) {
   // merge default and passed options
-  const options = {
+  const options: IOptions = {
     ...defaultOptions,
     ...passedOptions,
   };
@@ -84,12 +114,12 @@ export function createTranslationsMiddleware(
       }
       updateTranslatedComponents();
 
-      requestFunc(loadingLang).then(dictionary => {
+      requestFunc(switchingLang).then(dictionary => {
         // update dictionary on load
-        __state.dictionaries[loadingLang] = dictionary;
+        __state.dictionaries[switchingLang] = dictionary;
         // if didn't switch lang while waiting for response
-        if (__state.loadingLang === loadingLang) {
-          __state.currentLang = loadingLang;
+        if (__state.loadingLang === switchingLang) {
+          __state.currentLang = switchingLang;
           __state.loadingLang = null;
           updateTranslatedComponents();
         }
@@ -104,21 +134,33 @@ export function createTranslationsMiddleware(
 // and returns the new PureComponent class that render
 // the first one with additional props:
 // switchLang, currentLang, loadingLang, dictionary
-export default function withTranslations(Component) {
-  const Connected = connect(null, {
+export default function withTranslations<P>(
+  Component: React.ComponentClass<P & ITranslated>
+): React.ComponentClass<P> {
+  const ConnectedComponent: React.ComponentClass = connect(null, {
     switchLang: switchLangActionCreator,
   })(Component);
 
-  return class extends React.PureComponent {
+  return class Translated extends React.PureComponent<P, {}> {
     static displayName = `withTranslations( ${getDisplayName(Component)} )`
+
     componentDidMount() { translatedComponents.add(this); }
+
     componentWillUnmount() { translatedComponents.delete(this); }
-    render() {
-      const { currentLang, loadingLang } = __state;
-      const dictionary = (currentLang && __state[currentLang]) || {};
-      return (
-        <Connected { ...this.props, currentLang, loadingLang, dictionary }/>
-      )
+
+    render(): JSX.Element {
+      const { currentLang, loadingLang }: IState<object> = __state;
+      const dictionary: object = (currentLang && __state[currentLang]) || {};
+      const props = {};
+      Object.assign(
+        props,
+        this.props,
+        currentLang,
+        loadingLang,
+        dictionary
+      );
+
+      return React.createElement(ConnectedComponent, props);
     }
   };
 }
