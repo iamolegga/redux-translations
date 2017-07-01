@@ -155,9 +155,7 @@ export default function withTranslations<P>(
       Object.assign(
         props,
         this.props,
-        currentLang,
-        loadingLang,
-        dictionary
+        { currentLang, loadingLang, dictionary }
       );
 
       return React.createElement(ConnectedComponent, props);
