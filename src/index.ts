@@ -149,8 +149,16 @@ export default function withTranslations<P>(
     componentWillUnmount() { translatedComponents.delete(this); }
 
     render(): JSX.Element {
-      const { currentLang, loadingLang }: IState<object> = __state;
-      const dictionary: object = (currentLang && __state[currentLang]) || {};
+      const {
+        dictionaries,
+        currentLang,
+        loadingLang
+      }: IState<object> = __state;
+
+      const dictionary: object = (
+        currentLang && dictionaries[currentLang]
+      ) || {};
+
       const props = {};
       Object.assign(
         props,
