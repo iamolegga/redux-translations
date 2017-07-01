@@ -8,9 +8,12 @@ export interface Action {
 
 export type IActionCreator = (payload: string) => Action;
 
+export type ISwitchCallback = (language: string) => void;
+
 export interface IOptions {
   cache?: boolean;
   updateCacheOnSwitch?: boolean;
+  switchCallback?: ISwitchCallback;
 }
 
 export interface IState<D> {
@@ -89,6 +92,10 @@ export function createTranslationsMiddleware(
       // do nothing when switching to current language
       if (switchingLang === __state.currentLang) {
         return next(action);
+      }
+
+      if (typeof options.switchCallback === 'function') {
+        options.switchCallback(switchingLang);
       }
 
       // if already loaded and using cache
