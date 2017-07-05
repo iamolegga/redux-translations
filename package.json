@@ -1,6 +1,6 @@
 {
   "name": "redux-translations",
-  "version": "0.1.5",
+  "version": "0.0.0-development",
   "description": "translations utils for react-redux apps",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iamolegga/redux-translations.git"
+    "url": "https://github.com/iamolegga/redux-translations.git"
   },
   "keywords": [
     "react",
