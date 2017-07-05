@@ -1,6 +1,16 @@
 # redux-translations
 Translations utils for react-redux apps
 
+
+[![npm](https://img.shields.io/npm/v/redux-translations.svg)](https://www.npmjs.com/package/redux-translations)
+[![npm](https://img.shields.io/npm/dw/redux-translations.svg)](https://www.npmjs.com/package/redux-translations)
+[![Travis](https://img.shields.io/travis/iamolegga/redux-translations.svg)](https://travis-ci.org/iamolegga/redux-translations)
+[![Codecov](https://img.shields.io/codecov/c/github/iamolegga/redux-translations.svg)](https://codecov.io/gh/iamolegga/redux-translations)
+[![license](https://img.shields.io/github/license/iamolegga/redux-translations.svg)](https://github.com/iamolegga/redux-translations)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![Libraries.io for GitHub](https://img.shields.io/librariesio/github/iamolegga/redux-translations.svg)](https://libraries.io/github/iamolegga/redux-translations)
+
+
 ## Install
 
 ```sh
