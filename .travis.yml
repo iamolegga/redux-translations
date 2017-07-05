@@ -1,0 +1,20 @@
+language: node_js
+cache:
+  directories:
+  - node_modules
+notifications:
+  email: false
+node_js:
+- '8'
+before_script:
+- npm prune
+script:
+- npm t
+- |
+  if [[ ( "$TRAVIS_BRANCH" == "master" ) && ( "$TRAVIS_PULL_REQUEST" == "false" ) ]]; then
+    npm run build;
+    npm run _semantic-release;
+  fi
+branches:
+  except:
+  - /^v\d+\.\d+\.\d+$/

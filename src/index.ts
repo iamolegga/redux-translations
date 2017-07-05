@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 export interface Action {
   type: string;
   payload: string;
-};
+}
 
 export type IActionCreator = (payload: string) => Action;
 
@@ -18,13 +18,13 @@ export interface IOptions {
 
 export interface IState<D> {
   dictionaries: {
-    [language: string]: D
-  },
-  currentLang: string|null;
-  loadingLang: string|null;
+    [language: string]: D;
+  };
+  currentLang: string | null;
+  loadingLang: string | null;
 }
 
-export type requestFunc = (language: string) => Promise<Object>
+export type requestFunc = (language: string) => Promise<Object>;
 
 export interface ITranslated {
   currentLang: string;
@@ -33,12 +33,10 @@ export interface ITranslated {
   switchLang: (language: string) => void;
 }
 
-
 /**
  * Type for FSA Action
  */
 const switchLangActionType: string = 'reduxTranslations__switchLang';
-
 
 /**
  * FSA Action creator
@@ -50,20 +48,17 @@ export const switchLangActionCreator: IActionCreator = language => ({
   payload: language,
 });
 
-
 /**
  * List of mounted components that depends on translations
  */
 const translatedComponents = new Set<React.Component<any>>();
-
 
 /**
  * Update mounted components that depends on translations
  */
 function updateTranslatedComponents() {
   translatedComponents.forEach(comp => comp.forceUpdate());
-};
-
+}
 
 /**
  * Default options for createTranslationsMiddleware function
@@ -74,7 +69,6 @@ const defaultOptions: IOptions = {
   cache: true,
   updateCacheOnSwitch: false,
 };
-
 
 /**
  * Initial translations state
@@ -88,7 +82,6 @@ const __state: IState<object> = {
   loadingLang: null,
 };
 
-
 /**
  * Translations middleware creator
  * @param {function} requestFunc - function, that takes name of language and returns Promise<Dictionary>
@@ -99,7 +92,7 @@ const __state: IState<object> = {
  */
 export function createTranslationsMiddleware(
   requestFunc: requestFunc,
-  passedOptions: IOptions = {},
+  passedOptions: IOptions = {}
 ) {
   // merge default and passed options
   const options: IOptions = {
@@ -114,7 +107,7 @@ export function createTranslationsMiddleware(
       if (typeof switchingLang !== 'string') {
         throw new Error(
           'switchLangActionCreator and switchLang property ' +
-          'should be called with argument typeof string.'
+            'should be called with argument typeof string.'
         );
       }
 
@@ -163,8 +156,7 @@ export function createTranslationsMiddleware(
     }
     return next(action);
   };
-};
-
+}
 
 /**
  * Function that takes Component class or function and returns the new PureComponent class that render the first one with additional props:
@@ -183,29 +175,32 @@ export default function withTranslations<P>(
   })(Component);
 
   return class Translated extends React.PureComponent<P, {}> {
-    static displayName = `withTranslations( ${getDisplayName(Component)} )`
+    static displayName = `withTranslations( ${getDisplayName(Component)} )`;
 
-    componentDidMount() { translatedComponents.add(this); }
+    componentDidMount() {
+      translatedComponents.add(this);
+    }
 
-    componentWillUnmount() { translatedComponents.delete(this); }
+    componentWillUnmount() {
+      translatedComponents.delete(this);
+    }
 
     render(): JSX.Element {
       const {
         dictionaries,
         currentLang,
-        loadingLang
+        loadingLang,
       }: IState<object> = __state;
 
-      const dictionary: object = (
-        currentLang && dictionaries[currentLang]
-      ) || {};
+      const dictionary: object =
+        (currentLang && dictionaries[currentLang]) || {};
 
       const props = {};
-      Object.assign(
-        props,
-        this.props,
-        { currentLang, loadingLang, dictionary }
-      );
+      Object.assign(props, this.props, {
+        currentLang,
+        loadingLang,
+        dictionary,
+      });
 
       return React.createElement(ConnectedComponent, props);
     }

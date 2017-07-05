@@ -23,12 +23,7 @@ const functionThatReturnsPromiseWithDictionary = language =>
   );
 
 const translationsMiddleware = createTranslationsMiddleware(
-  functionThatReturnsPromiseWithDictionary,
-  {
-    // default properties
-    cache: true,
-    updateCacheOnSwitch: false,
-  }
+  functionThatReturnsPromiseWithDictionary
 );
 
 const store = createStore(rootReducer, applyMiddleware(translationsMiddleware));
@@ -72,3 +67,33 @@ You can change language not only in react-component:
 import { switchLangActionCreator } from 'redux-translations';
 store.dispatch(switchLangActionCreator('en'));
 ```
+
+## API
+
+### `createTranslationsMiddleware(getDictionary, [options])`
+
+Function, that creates redux-middleware for translations. Has next arguments:
+
+1. `getDictionary` (Function) - function with one argument type of `string` - language, that user is switching to, and returns promise with `dictionary` object.
+
+2. `[options]` (Object) - options object with next optional fields:
+
+  - `cache` (Boolean) - should cache results of `getDictionary`, and do not call it if dictionary is already loaded. Default `true`.
+  - `updateCacheOnSwitch` (Boolean) - when `cache` is `true`, should switch immediately to cached dictionary, but load dictionary in background one more time and replace old with the new one. Default `false`.
+  - `switchCallback` (Function) - callback for every language switching. Default `undefined`.
+
+### `withTranslations(ComponentClass)`
+
+React component class wrapper that adds next props to wrapping component class (actually it returns new component class):
+
+1. `currentLang` (String) - language, which dictionary is currently using.
+
+2. `loadingLang` (String) - language, which dictionary is currently loading.
+
+3. `dictionary` (Object) - object, that is returned by `getDictionary`.
+
+4. `switchLang` (Function) - function, that switch language to passed one.
+
+### `switchLangActionCreator(language)`
+
+Redux action creator - function with one argument type of `string`, returns flux standard action (FSA), that you can dispatch whereever in your app (for example, when initialising your app).
