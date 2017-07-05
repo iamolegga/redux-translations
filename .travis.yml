@@ -10,6 +10,7 @@ before_script:
 - npm prune
 script:
 - npm t
+after_success:
 - |
   if [[ ( "$TRAVIS_BRANCH" == "master" ) && ( "$TRAVIS_PULL_REQUEST" == "false" ) ]]; then
     npm run build;
