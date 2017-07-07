@@ -76,11 +76,7 @@ const defaultOptions: IOptions = {
  * @property {string} currentLang - current language with fetched dictionary
  * @property {string} loadingLang - language that user is switching to, but not fetched dictionary yet
  */
-const __state: IState<object> = {
-  dictionaries: {},
-  currentLang: null,
-  loadingLang: null,
-};
+let __state: IState<object>;
 
 /**
  * Translations middleware creator
@@ -94,6 +90,13 @@ export function createTranslationsMiddleware(
   requestFunc: requestFunc,
   passedOptions: IOptions = {}
 ) {
+  // init state
+  __state  = {
+    dictionaries: {},
+    currentLang: null,
+    loadingLang: null,
+  }
+
   // merge default and passed options
   const options: IOptions = {
     ...defaultOptions,
@@ -140,19 +143,20 @@ export function createTranslationsMiddleware(
       } else {
         // set loading
         __state.loadingLang = switchingLang;
+
+        // request dictionary
+        requestFunc(switchingLang).then(dictionary => {
+          // update dictionary on load
+          __state.dictionaries[switchingLang] = dictionary;
+          // if didn't switch lang while waiting for response
+          if (__state.loadingLang === switchingLang) {
+            __state.currentLang = switchingLang;
+            __state.loadingLang = null;
+            updateTranslatedComponents();
+          }
+        });
       }
       updateTranslatedComponents();
-
-      requestFunc(switchingLang).then(dictionary => {
-        // update dictionary on load
-        __state.dictionaries[switchingLang] = dictionary;
-        // if didn't switch lang while waiting for response
-        if (__state.loadingLang === switchingLang) {
-          __state.currentLang = switchingLang;
-          __state.loadingLang = null;
-          updateTranslatedComponents();
-        }
-      });
     }
     return next(action);
   };

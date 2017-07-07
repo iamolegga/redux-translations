@@ -15,6 +15,11 @@ interface ComponentProps {
   someAnotherProp: string;
 }
 
+const dictionaries = {
+  en: { hello: 'hello' },
+  it: { hello: 'ciao' },
+};
+
 class Component extends React.PureComponent<ComponentProps, {}> {
   render() {
     const {
@@ -26,16 +31,17 @@ class Component extends React.PureComponent<ComponentProps, {}> {
     } = this.props;
     return (
       <div>
-        <div id="dictionary">
-          {dictionary['test'] || null}
+        <div id="translation">
+          {dictionary['hello'] || null}
         </div>
-        <div id="currentLang">
+        <div id="current">
           {currentLang}
         </div>
-        <div id="loadingLang">
+        <div id="loading">
           {loadingLang}
         </div>
-        <button id="switchLang" onClick={() => switchLang('testLang')} />
+        <button id="en" onClick={() => switchLang('en')} />
+        <button id="it" onClick={() => switchLang('it')} />
       </div>
     );
   }
@@ -56,9 +62,13 @@ const createApp = store =>
     }
   };
 
+
 test('Should render with default props for "createTranslationsMiddleware" and change lang successfully', () => {
-  const getDictionary = lang =>
-    Promise.resolve(lang === 'testLang' ? { test: 'test' } : {});
+  const getDictionary = jest.fn().mockImplementation(lang =>
+    Promise.resolve(
+      dictionaries[lang]
+    )
+  );
 
   const reducer = (state: object = {}, action: any) => state;
   const middleware = createTranslationsMiddleware(getDictionary);
@@ -66,17 +76,52 @@ test('Should render with default props for "createTranslationsMiddleware" and ch
   const App = createApp(store);
   const wrapper = mount(<App />);
 
-  expect(wrapper.find('#dictionary').text()).toBe('');
-  expect(wrapper.find('#currentLang').text()).toBe('');
-  expect(wrapper.find('#loadingLang').text()).toBe('');
+  expect(getDictionary).toHaveBeenCalledTimes(0);
+  expect(wrapper.find('#translation').text()).toBe('');
+  expect(wrapper.find('#current').text()).toBe('');
+  expect(wrapper.find('#loading').text()).toBe('');
 
-  wrapper.find('button').simulate('click');
-  expect(wrapper.find('#loadingLang').text()).toBe('testLang');
+  wrapper.find('#en').simulate('click');
+  expect(getDictionary).toHaveBeenCalledTimes(1);
+  expect(wrapper.find('#current').text()).toBe('');
+  expect(wrapper.find('#loading').text()).toBe('en');
 
   // after click should wait for promise resolving dictionary
   return Promise.resolve().then(() => {
-    expect(wrapper.find('#dictionary').text()).toBe('test');
-    expect(wrapper.find('#currentLang').text()).toBe('testLang');
-    expect(wrapper.find('#loadingLang').text()).toBe('');
+    expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+    expect(wrapper.find('#current').text()).toBe('en');
+    expect(wrapper.find('#loading').text()).toBe('');
+  });
+});
+
+test('Should not request cached dictionary', () => {
+  const getDictionary = jest.fn().mockImplementation(lang =>
+    Promise.resolve(
+      dictionaries[lang]
+    )
+  );
+
+  const reducer = (state: object = {}, action: any) => state;
+  const middleware = createTranslationsMiddleware(getDictionary);
+  const store = createStore(reducer, applyMiddleware(middleware));
+  const App = createApp(store);
+  const wrapper = mount(<App />);
+
+  expect(getDictionary).toHaveBeenCalledTimes(0);
+
+  wrapper.find('#en').simulate('click');
+
+  // after click should wait for promise resolving dictionary
+  return Promise.resolve().then(() => {
+    expect(getDictionary).toHaveBeenCalledTimes(1);
+    wrapper.find('#it').simulate('click');
+  }).then(() => {
+    expect(getDictionary).toHaveBeenCalledTimes(2);
+    wrapper.find('#en').simulate('click');
+
+    expect(getDictionary).toHaveBeenCalledTimes(2);
+    expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+    expect(wrapper.find('#current').text()).toBe('en');
+    expect(wrapper.find('#loading').text()).toBe('');
   });
 });
