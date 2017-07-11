@@ -5,14 +5,15 @@ import { mount } from 'enzyme';
 import withTranslations, {
   createTranslationsMiddleware,
   ITranslated,
+  switchLangActionCreator,
 } from '../src';
 
-interface ComponentProps {
+interface TestCompProps {
   dictionary: {};
   currentLang: string;
   loadingLang: string;
   switchLang: (to: string) => void;
-  someAnotherProp: string;
+  anotherProp: string;
 }
 
 const dictionaries = {
@@ -20,14 +21,14 @@ const dictionaries = {
   it: { hello: 'ciao' },
 };
 
-class Component extends React.PureComponent<ComponentProps, {}> {
+class TestComp extends React.PureComponent<TestCompProps, {}> {
   render() {
     const {
       dictionary,
       currentLang,
       loadingLang,
       switchLang,
-      someAnotherProp,
+      anotherProp,
     } = this.props;
     return (
       <div>
@@ -47,20 +48,24 @@ class Component extends React.PureComponent<ComponentProps, {}> {
   }
 }
 
-const TranslatedComponent = withTranslations<{
-  someAnotherProp: string;
-}>(Component);
+const TranslatedComponent = withTranslations<{anotherProp: string;}>(TestComp);
 
 const createApp = store =>
   class extends React.PureComponent<{}, {}> {
     render() {
       return (
         <Provider store={store}>
-          <TranslatedComponent someAnotherProp="someAnotherProp" />
+          <TranslatedComponent anotherProp="anotherProp" />
         </Provider>
       );
     }
   };
+
+test('displayName should show wrapper', () => {
+  expect(TranslatedComponent.displayName).toBe(`withTranslations( ${
+    TestComp.name
+  } )`);
+});
 
 test('Should render with default props for "createTranslationsMiddleware" and change lang successfully', () => {
   const getDictionary = jest
@@ -240,4 +245,53 @@ test('should call switch callback', () => {
   wrapper.find('#en').simulate('click');
   expect(switchCallback).toHaveBeenCalledTimes(3);
   expect(switchCallback.mock.calls[2][0]).toBe('en');
+});
+
+test('switchLangActionCreator should change lang', () => {
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
+
+  const reducer = (state: object = {}, action: any) => state;
+  const middleware = createTranslationsMiddleware(getDictionary);
+  const store = createStore(reducer, applyMiddleware(middleware));
+  const App = createApp(store);
+  const wrapper = mount(<App />);
+
+  store.dispatch(switchLangActionCreator('en'));
+
+  expect(getDictionary).toHaveBeenCalledTimes(1);
+  expect(wrapper.find('#translation').text()).toBe('');
+  expect(wrapper.find('#current').text()).toBe('');
+  expect(wrapper.find('#loading').text()).toBe('en');
+
+  return Promise.resolve()
+    .then(() => {
+      expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+      expect(wrapper.find('#current').text()).toBe('en');
+      expect(wrapper.find('#loading').text()).toBe('');
+    });
+});
+
+
+
+test('should throw error when call switchLang with wrong payload', () => {
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
+
+  const reducer = (state: object = {}, action: any) => state;
+  const middleware = createTranslationsMiddleware(getDictionary);
+  const store = createStore(reducer, applyMiddleware(middleware));
+  const App = createApp(store);
+  const wrapper = mount(<App />);
+
+  try {
+    store.dispatch(switchLangActionCreator(1 as any));
+  } catch (e) {
+    expect(e.message).toBe(
+      'switchLangActionCreator and switchLang property ' +
+      'should be called with argument typeof string.'
+    );
+  }
 });
