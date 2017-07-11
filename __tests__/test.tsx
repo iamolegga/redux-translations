@@ -62,13 +62,10 @@ const createApp = store =>
     }
   };
 
-
 test('Should render with default props for "createTranslationsMiddleware" and change lang successfully', () => {
-  const getDictionary = jest.fn().mockImplementation(lang =>
-    Promise.resolve(
-      dictionaries[lang]
-    )
-  );
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
 
   const reducer = (state: object = {}, action: any) => state;
   const middleware = createTranslationsMiddleware(getDictionary);
@@ -95,11 +92,9 @@ test('Should render with default props for "createTranslationsMiddleware" and ch
 });
 
 test('Should not request cached dictionary', () => {
-  const getDictionary = jest.fn().mockImplementation(lang =>
-    Promise.resolve(
-      dictionaries[lang]
-    )
-  );
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
 
   const reducer = (state: object = {}, action: any) => state;
   const middleware = createTranslationsMiddleware(getDictionary);
@@ -112,16 +107,18 @@ test('Should not request cached dictionary', () => {
   wrapper.find('#en').simulate('click');
 
   // after click should wait for promise resolving dictionary
-  return Promise.resolve().then(() => {
-    expect(getDictionary).toHaveBeenCalledTimes(1);
-    wrapper.find('#it').simulate('click');
-  }).then(() => {
-    expect(getDictionary).toHaveBeenCalledTimes(2);
-    wrapper.find('#en').simulate('click');
+  return Promise.resolve()
+    .then(() => {
+      expect(getDictionary).toHaveBeenCalledTimes(1);
+      wrapper.find('#it').simulate('click');
+    })
+    .then(() => {
+      expect(getDictionary).toHaveBeenCalledTimes(2);
+      wrapper.find('#en').simulate('click');
 
-    expect(getDictionary).toHaveBeenCalledTimes(2);
-    expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
-    expect(wrapper.find('#current').text()).toBe('en');
-    expect(wrapper.find('#loading').text()).toBe('');
-  });
+      expect(getDictionary).toHaveBeenCalledTimes(2);
+      expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+      expect(wrapper.find('#current').text()).toBe('en');
+      expect(wrapper.find('#loading').text()).toBe('');
+    });
 });

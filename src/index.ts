@@ -91,11 +91,11 @@ export function createTranslationsMiddleware(
   passedOptions: IOptions = {}
 ) {
   // init state
-  __state  = {
+  __state = {
     dictionaries: {},
     currentLang: null,
     loadingLang: null,
-  }
+  };
 
   // merge default and passed options
   const options: IOptions = {
