@@ -10,7 +10,7 @@
     "commit": "git-cz",
     "prettify": "prettier --single-quote --trailing-comma es5 --parser typescript --write \"@(src|__tests__)/**/*.ts?(x)\"",
     "build": "rm -rf ./build && tsc -p ./tsconfig.json",
-    "postpublish": "cat ./coverage/lcov.info | codecov",
+    "codecov": "cat ./coverage/lcov.info | codecov",
     "_semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {

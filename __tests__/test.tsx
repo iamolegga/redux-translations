@@ -144,12 +144,12 @@ test('should not cache when options.cache === true', () => {
     .then(() => {
       wrapper.find('#it').simulate('click');
       expect(getDictionary).toHaveBeenCalledTimes(2);
-    }).then(() => {
+    })
+    .then(() => {
       wrapper.find('#en').simulate('click');
       expect(getDictionary).toHaveBeenCalledTimes(3);
     });
 });
-
 
 test('should update cache in background when options.updateCacheOnSwitch === true', () => {
   const mutableDictionaries = { ...dictionaries };
@@ -189,7 +189,8 @@ test('should update cache in background when options.updateCacheOnSwitch === tru
       );
       expect(wrapper.find('#current').text()).toBe('en');
       expect(wrapper.find('#loading').text()).toBe('it');
-    }).then(() => {
+    })
+    .then(() => {
       expect(wrapper.find('#translation').text()).toBe(
         mutableDictionaries.it.hello
       );
@@ -205,7 +206,8 @@ test('should update cache in background when options.updateCacheOnSwitch === tru
       expect(wrapper.find('#translation').text()).toBe(deprecatedEn.hello);
       expect(wrapper.find('#current').text()).toBe('en');
       expect(wrapper.find('#loading').text()).toBe('');
-    }).then(() => {
+    })
+    .then(() => {
       expect(wrapper.find('#translation').text()).toBe(
         mutableDictionaries.en.hello
       );
@@ -216,7 +218,7 @@ test('should call switch callback', () => {
   const getDictionary = jest
     .fn()
     .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
-  
+
   const switchCallback = jest.fn();
 
   const reducer = (state: object = {}, action: any) => state;
