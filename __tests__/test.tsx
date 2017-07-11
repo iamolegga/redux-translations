@@ -123,7 +123,7 @@ test('Should not request cached dictionary', () => {
     });
 });
 
-test('should not cache when options.cache === true', () => {
+test('should not cache when options.cache === false', () => {
   const getDictionary = jest
     .fn()
     .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
