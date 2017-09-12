@@ -90,7 +90,8 @@ Function, that creates redux-middleware for translations. Has next arguments:
 
   - `cache` (Boolean) - should cache results of `getDictionary`, and do not call it if dictionary is already loaded. Default `true`.
   - `updateCacheOnSwitch` (Boolean) - when `cache` is `true`, should switch immediately to cached dictionary, but load dictionary in background one more time and replace old with the new one. Default `false`.
-  - `switchCallback` (Function) - callback for every language switching. Default `undefined`.
+  - `startSwitchCallback` (Function) - callback for every language switching start. Run exactly in switch event, without waiting for fetching dictionary. Takes next arguments: `loadingLang` (String) and `store`. Default `undefined`.
+  - `endSwitchCallback` (Function) - callback for every language switching end. Run exactly after fetching dictionary. Takes next arguments: `loadingLang` (String), `dictionary` (Object) and `store`. Default `undefined`.
 
 ### `withTranslations(ComponentClass)`
 
