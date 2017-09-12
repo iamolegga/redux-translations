@@ -75,7 +75,7 @@ test('displayName should show wrapper', () => {
   );
 });
 
-test('Should render with default props for "createTranslationsMiddleware" and change lang successfully', () => {
+test('Should render with default props for "createTranslationsMiddleware" and change lang successfully', async () => {
   const getDictionary = jest
     .fn()
     .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
@@ -97,14 +97,14 @@ test('Should render with default props for "createTranslationsMiddleware" and ch
   expect(wrapper.find('#loading').text()).toBe('en');
 
   // after click should wait for promise resolving dictionary
-  return Promise.resolve().then(() => {
-    expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
-    expect(wrapper.find('#current').text()).toBe('en');
-    expect(wrapper.find('#loading').text()).toBe('');
-  });
+  await Promise.resolve();
+
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
 });
 
-test('Should not request cached dictionary', () => {
+test('Should not request cached dictionary', async () => {
   const getDictionary = jest
     .fn()
     .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
@@ -121,22 +121,22 @@ test('Should not request cached dictionary', () => {
   expect(getDictionary).toHaveBeenCalledTimes(1);
 
   // after click should wait for promise resolving dictionary
-  return Promise.resolve()
-    .then(() => {
-      wrapper.find('#it').simulate('click');
-      expect(getDictionary).toHaveBeenCalledTimes(2);
-    })
-    .then(() => {
-      wrapper.find('#en').simulate('click');
-      expect(getDictionary).toHaveBeenCalledTimes(2);
+  await Promise.resolve();
 
-      expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
-      expect(wrapper.find('#current').text()).toBe('en');
-      expect(wrapper.find('#loading').text()).toBe('');
-    });
+  wrapper.find('#it').simulate('click');
+  expect(getDictionary).toHaveBeenCalledTimes(2);
+
+  await Promise.resolve();
+
+  wrapper.find('#en').simulate('click');
+  expect(getDictionary).toHaveBeenCalledTimes(2);
+
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
 });
 
-test('should not cache when options.cache === false', () => {
+test('should not cache when options.cache === false', async () => {
   const getDictionary = jest
     .fn()
     .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
@@ -153,18 +153,18 @@ test('should not cache when options.cache === false', () => {
   expect(getDictionary).toHaveBeenCalledTimes(1);
 
   // after click should wait for promise resolving dictionary
-  return Promise.resolve()
-    .then(() => {
-      wrapper.find('#it').simulate('click');
-      expect(getDictionary).toHaveBeenCalledTimes(2);
-    })
-    .then(() => {
-      wrapper.find('#en').simulate('click');
-      expect(getDictionary).toHaveBeenCalledTimes(3);
-    });
+  await Promise.resolve();
+
+  wrapper.find('#it').simulate('click');
+  expect(getDictionary).toHaveBeenCalledTimes(2);
+
+  await Promise.resolve();
+
+  wrapper.find('#en').simulate('click');
+  expect(getDictionary).toHaveBeenCalledTimes(3);
 });
 
-test('should update cache in background when options.updateCacheOnSwitch === true', () => {
+test('should update cache in background when options.updateCacheOnSwitch === true', async () => {
   const mutableDictionaries = { ...dictionaries };
 
   const getDictionary = jest
@@ -186,48 +186,48 @@ test('should update cache in background when options.updateCacheOnSwitch === tru
   expect(wrapper.find('#loading').text()).toBe('en');
 
   // after click should wait for promise resolving dictionary
-  return Promise.resolve()
-    .then(() => {
-      expect(wrapper.find('#translation').text()).toBe(
-        mutableDictionaries.en.hello
-      );
-      expect(wrapper.find('#current').text()).toBe('en');
-      expect(wrapper.find('#loading').text()).toBe('');
+  await Promise.resolve();
 
-      wrapper.find('#it').simulate('click');
-      expect(getDictionary).toHaveBeenCalledTimes(2);
+  expect(wrapper.find('#translation').text()).toBe(
+    mutableDictionaries.en.hello
+  );
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
 
-      expect(wrapper.find('#translation').text()).toBe(
-        mutableDictionaries.en.hello
-      );
-      expect(wrapper.find('#current').text()).toBe('en');
-      expect(wrapper.find('#loading').text()).toBe('it');
-    })
-    .then(() => {
-      expect(wrapper.find('#translation').text()).toBe(
-        mutableDictionaries.it.hello
-      );
-      expect(wrapper.find('#current').text()).toBe('it');
-      expect(wrapper.find('#loading').text()).toBe('');
+  wrapper.find('#it').simulate('click');
+  expect(getDictionary).toHaveBeenCalledTimes(2);
 
-      const deprecatedEn = mutableDictionaries.en;
-      mutableDictionaries.en = { hello: 'hi!' };
+  expect(wrapper.find('#translation').text()).toBe(
+    mutableDictionaries.en.hello
+  );
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('it');
 
-      wrapper.find('#en').simulate('click');
-      expect(getDictionary).toHaveBeenCalledTimes(3);
+  await Promise.resolve();
 
-      expect(wrapper.find('#translation').text()).toBe(deprecatedEn.hello);
-      expect(wrapper.find('#current').text()).toBe('en');
-      expect(wrapper.find('#loading').text()).toBe('');
-    })
-    .then(() => {
-      expect(wrapper.find('#translation').text()).toBe(
-        mutableDictionaries.en.hello
-      );
-    });
+  expect(wrapper.find('#translation').text()).toBe(
+    mutableDictionaries.it.hello
+  );
+  expect(wrapper.find('#current').text()).toBe('it');
+  expect(wrapper.find('#loading').text()).toBe('');
+
+  const deprecatedEn = mutableDictionaries.en;
+  mutableDictionaries.en = { hello: 'hi!' };
+
+  wrapper.find('#en').simulate('click');
+  expect(getDictionary).toHaveBeenCalledTimes(3);
+
+  expect(wrapper.find('#translation').text()).toBe(deprecatedEn.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
+  await Promise.resolve();
+
+  expect(wrapper.find('#translation').text()).toBe(
+    mutableDictionaries.en.hello
+  );
 });
 
-test('should call startSwitchCallback immediately', () => {
+test('should call startSwitchCallback immediately', async () => {
   const getDictionary = jest
     .fn()
     .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
@@ -304,7 +304,7 @@ test('should call endSwitchCallback after language change', async () => {
   expect(endSwitchCallback.mock.calls[2][1]).toBe(dictionaries[firstLangKey]);
 });
 
-test('switchLangActionCreator should change lang', () => {
+test('switchLangActionCreator should change lang', async () => {
   const getDictionary = jest
     .fn()
     .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
@@ -322,14 +322,14 @@ test('switchLangActionCreator should change lang', () => {
   expect(wrapper.find('#current').text()).toBe('');
   expect(wrapper.find('#loading').text()).toBe('en');
 
-  return Promise.resolve().then(() => {
-    expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
-    expect(wrapper.find('#current').text()).toBe('en');
-    expect(wrapper.find('#loading').text()).toBe('');
-  });
+  await Promise.resolve();
+
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
 });
 
-test('should throw error when call switchLang with wrong payload', () => {
+test('should throw error when call switchLang with wrong payload', async () => {
   const getDictionary = jest
     .fn()
     .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
