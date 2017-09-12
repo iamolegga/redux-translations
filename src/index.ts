@@ -3,17 +3,22 @@ import { connect } from 'react-redux';
 
 export type IAction = Redux.Action & { payload: string };
 
-export type IStartSwitchCallback<S> =
-  (language: string, store: Redux.Store<S>) => void;
+export type IStartSwitchCallback<S> = (
+  language: string,
+  store: Redux.Store<S>
+) => void;
 
-export type IEndSwitchCallback<S,D> =
-  (language: string, dictionary: D, store: Redux.Store<S>) => void;
+export type IEndSwitchCallback<S, D> = (
+  language: string,
+  dictionary: D,
+  store: Redux.Store<S>
+) => void;
 
-export interface IOptions<S,D> {
+export interface IOptions<S, D> {
   cache?: boolean;
   updateCacheOnSwitch?: boolean;
   startSwitchCallback?: IStartSwitchCallback<S>;
-  endSwitchCallback?: IEndSwitchCallback<S,D>;
+  endSwitchCallback?: IEndSwitchCallback<S, D>;
 }
 
 export interface IState<D> {
@@ -43,11 +48,12 @@ const switchLangActionType = 'REDUX_TRANSLATIONS_SWITCH_LANG';
  * @param {string} language string
  * @return FSA-Action
  */
-export const switchLangActionCreator: Redux.ActionCreator<IAction> =
-  language => ({
-    type: switchLangActionType,
-    payload: language,
-  });
+export const switchLangActionCreator: Redux.ActionCreator<
+  IAction
+> = language => ({
+  type: switchLangActionType,
+  payload: language,
+});
 
 /**
  * List of mounted components that depends on translations
@@ -87,9 +93,9 @@ let __state: IState<any>;
  * @param {boolean} passedOptions.updateCacheOnSwitch - request dictionary again if cached
  * @param {void} passedOptions.startSwitchCallback - callback on start switching. Takes language and store.
  */
-export function createTranslationsMiddleware<D,S>(
+export function createTranslationsMiddleware<D, S>(
   requestFunc: requestFunc<D>,
-  passedOptions: IOptions<S,D> = {}
+  passedOptions: IOptions<S, D> = {}
 ) {
   // init state
   __state = {
@@ -99,7 +105,7 @@ export function createTranslationsMiddleware<D,S>(
   };
 
   // merge default and passed options
-  const options: IOptions<S,D> = {
+  const options: IOptions<S, D> = {
     ...defaultOptions,
     ...passedOptions,
   };
@@ -157,18 +163,14 @@ export function createTranslationsMiddleware<D,S>(
         requestFunc(switchingLang).then(dictionary => {
           // update dictionary on load
           __state.dictionaries[switchingLang] = dictionary;
-          
+
           // if didn't switch lang while waiting for response
           if (__state.loadingLang === switchingLang) {
             __state.currentLang = switchingLang;
             __state.loadingLang = null;
 
             if (typeof options.endSwitchCallback === 'function') {
-              options.endSwitchCallback(
-                switchingLang,
-                dictionary,
-                store,
-              );
+              options.endSwitchCallback(switchingLang, dictionary, store);
             }
 
             updateTranslatedComponents();
@@ -190,7 +192,7 @@ export function createTranslationsMiddleware<D,S>(
  * @param {React.ComponentClass} Component - component that depends on props, listed above
  * @return {React.ComponentClass}
  */
-export default function withTranslations<P,D>(
+export default function withTranslations<P, D>(
   Component: React.ComponentClass<P & ITranslated<D>>
 ): React.ComponentClass<P> {
   const ConnectedComponent: React.ComponentClass = connect(null, {
@@ -209,11 +211,7 @@ export default function withTranslations<P,D>(
     }
 
     render(): JSX.Element {
-      const {
-        dictionaries,
-        currentLang,
-        loadingLang,
-      }: IState<D> = __state;
+      const { dictionaries, currentLang, loadingLang }: IState<D> = __state;
 
       const dictionary = (currentLang && dictionaries[currentLang]) || {};
 

@@ -55,7 +55,7 @@ class TestComp extends React.PureComponent<TestCompProps, {}> {
 }
 
 const TranslatedComponent = withTranslations<TestCompOwnProps, Dictionary>(
-  TestComp,
+  TestComp
 );
 
 const createApp = store =>
@@ -277,7 +277,7 @@ test('should call endSwitchCallback after language change', async () => {
 
   wrapper.find(`#${firstLangKey}`).simulate('click');
   expect(endSwitchCallback).toHaveBeenCalledTimes(0);
-  
+
   // give it time to switch lang async
   await Promise.resolve();
 
@@ -289,7 +289,7 @@ test('should call endSwitchCallback after language change', async () => {
 
   wrapper.find(`#${secondLangKey}`).simulate('click');
   expect(endSwitchCallback).toHaveBeenCalledTimes(1);
-  
+
   // give it time to switch lang async
   await Promise.resolve();
 
