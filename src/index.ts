@@ -31,12 +31,17 @@ export interface IState<D> {
 
 export type requestFunc<D> = (language: string) => Promise<D>;
 
-export interface ITranslated<D> {
+export interface ITranslatedStateProps<D> {
   currentLang: string;
   loadingLang: string;
   dictionary: D;
+}
+export interface ITranslatedDispatchProps {
   switchLang: (language: string) => void;
 }
+export interface ITranslated<D>
+  extends ITranslatedStateProps<D>,
+    ITranslatedDispatchProps {}
 
 /**
  * Type for FSA Action
@@ -195,11 +200,11 @@ export function createTranslationsMiddleware<D, S>(
 export default function withTranslations<P, D>(
   Component: React.ComponentClass<P & ITranslated<D>>
 ): React.ComponentClass<P> {
-  const ConnectedComponent: React.ComponentClass = connect(null, {
+  const ConnectedComponent = connect<null, ITranslatedDispatchProps, P>(null, {
     switchLang: switchLangActionCreator,
-  })(Component);
+  })(Component as React.ComponentClass<P & ITranslatedDispatchProps>);
 
-  return class Translated extends React.PureComponent<P, {}> {
+  return class Translated extends React.PureComponent<P> {
     static displayName = `withTranslations( ${getDisplayName(Component)} )`;
 
     componentDidMount() {
@@ -215,8 +220,7 @@ export default function withTranslations<P, D>(
 
       const dictionary = (currentLang && dictionaries[currentLang]) || {};
 
-      const props = {};
-      Object.assign(props, this.props, {
+      const props = Object.assign({}, this.props, {
         currentLang,
         loadingLang,
         dictionary,
@@ -229,7 +233,7 @@ export default function withTranslations<P, D>(
 
 /**
  * Get component name
- * @param Component 
+ * @param Component
  * @return {string}
  */
 function getDisplayName(Component) {
