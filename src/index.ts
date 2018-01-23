@@ -202,7 +202,7 @@ export default function withTranslations<P, D>(
 ): React.ComponentClass<P> {
   const ConnectedComponent = connect<null, ITranslatedDispatchProps, P>(null, {
     switchLang: switchLangActionCreator,
-  })(Component as React.ComponentClass<P & ITranslatedDispatchProps>);
+  })(Component);
 
   return class Translated extends React.PureComponent<P> {
     static displayName = `withTranslations( ${getDisplayName(Component)} )`;
