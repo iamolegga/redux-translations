@@ -38,15 +38,9 @@ class TestComp extends React.PureComponent<TestCompProps, {}> {
     } = this.props;
     return (
       <div>
-        <div id="translation">
-          {dictionary['hello'] || null}
-        </div>
-        <div id="current">
-          {currentLang}
-        </div>
-        <div id="loading">
-          {loadingLang}
-        </div>
+        <div id="translation">{dictionary['hello'] || null}</div>
+        <div id="current">{currentLang}</div>
+        <div id="loading">{loadingLang}</div>
         <button id="en" onClick={() => switchLang('en')} />
         <button id="it" onClick={() => switchLang('it')} />
       </div>
