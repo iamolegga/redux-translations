@@ -1,4 +1,6 @@
 # redux-translations
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/iamolegga/redux-translations.svg)](https://greenkeeper.io/)
 Translations utils for react-redux apps
 
 
