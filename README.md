@@ -1,9 +1,8 @@
 # redux-translations
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/iamolegga/redux-translations.svg)](https://greenkeeper.io/)
 Translations utils for react-redux apps
 
-
+[![Greenkeeper badge](https://badges.greenkeeper.io/iamolegga/redux-translations.svg)](https://greenkeeper.io/)
 [![npm](https://img.shields.io/npm/v/redux-translations.svg)](https://www.npmjs.com/package/redux-translations)
 [![npm](https://img.shields.io/npm/dw/redux-translations.svg)](https://www.npmjs.com/package/redux-translations)
 [![Travis](https://img.shields.io/travis/iamolegga/redux-translations.svg)](https://travis-ci.org/iamolegga/redux-translations)
