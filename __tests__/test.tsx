@@ -1,12 +1,15 @@
 import * as React from 'react';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
+import { configure, mount } from 'enzyme';
 import withTranslations, {
   createTranslationsMiddleware,
   ITranslated,
   switchLangActionCreator,
 } from '../src';
+import * as Adapter from 'enzyme-adapter-react-16';
+
+configure({ adapter: new Adapter() });
 
 interface Dictionary {
   hello: string;
