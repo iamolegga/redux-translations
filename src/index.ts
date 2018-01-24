@@ -113,12 +113,12 @@ export function createTranslationsMiddleware<D, S>(
     loadingLang: null,
   };
 
+  __state = defaultState as IState<D>;
+
   if (initialState) {
     Object.keys(defaultState).forEach(
       key => (__state[key] = initialState[key] || defaultState[key])
     );
-  } else {
-    __state = defaultState;
   }
 
   // merge default and passed options
@@ -228,7 +228,7 @@ export default function withTranslations<P, D>(
     }
 
     render(): JSX.Element {
-      const { dictionaries, currentLang, loadingLang }: IState<D> = __state;
+      const { dictionaries, currentLang, loadingLang } = __state as IState<D>;
 
       const dictionary = (currentLang && dictionaries[currentLang]) || {};
 
