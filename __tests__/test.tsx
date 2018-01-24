@@ -346,3 +346,27 @@ test('should throw error when call switchLang with wrong payload', async () => {
     );
   }
 });
+
+test('initialState should work for first render', async () => {
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
+
+  const reducer = (state: object = {}, action: any) => state;
+  const middleware = createTranslationsMiddleware(
+    getDictionary,
+    {},
+    {
+      dictionaries: { en: dictionaries.en },
+      currentLang: 'en',
+    }
+  );
+  const store = createStore(reducer, applyMiddleware(middleware));
+  const App = createApp(store);
+  const wrapper = mount(<App />);
+
+  expect(getDictionary).toHaveBeenCalledTimes(0);
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
+});

@@ -81,7 +81,7 @@ store.dispatch(switchLangActionCreator('en'));
 
 ## API
 
-### `createTranslationsMiddleware(getDictionary, [options])`
+### `createTranslationsMiddleware(getDictionary, [options], [initialState])`
 
 Function, that creates redux-middleware for translations. Has next arguments:
 
@@ -92,7 +92,13 @@ Function, that creates redux-middleware for translations. Has next arguments:
   - `cache` (Boolean) - should cache results of `getDictionary`, and do not call it if dictionary is already loaded. Default `true`.
   - `updateCacheOnSwitch` (Boolean) - when `cache` is `true`, should switch immediately to cached dictionary, but load dictionary in background one more time and replace old with the new one. Default `false`.
   - `startSwitchCallback` (Function) - callback for every language switching start. Run exactly in switch event, without waiting for fetching dictionary. Takes next arguments: `loadingLang` (String) and `store`. Default `undefined`.
-  - `endSwitchCallback` (Function) - callback for every language switching end. Run exactly after fetching dictionary. Takes next arguments: `loadingLang` (String), `dictionary` (Object) and `store`. Default `undefined`.
+  - `endSwitchCallback` (Function) - callback for every language switching end. Run exactly after fetching dictionary. Takes next arguments: `loadedLang` (String), `dictionary` (Object) and `store`. Default `undefined`.
+
+3. `[initialState]` (Object) - initial state object with next optional fields:
+
+  - `dictionaries` (Object) - hash-table of dictionaries, where key is language name and value is dictionary. Default `{}`.
+  - `currentLang` (String) - current language with fetched dictionary. Default `null`.
+  - `loadingLang` (String) - language that user is switching to, but not fetched dictionary yet. Default `null`.
 
 ### `withTranslations(ComponentClass)`
 

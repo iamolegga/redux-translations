@@ -88,7 +88,7 @@ const defaultOptions: IOptions<any, any> = {
  * @property {string} currentLang - current language with fetched dictionary
  * @property {string} loadingLang - language that user is switching to, but not fetched dictionary yet
  */
-let __state: IState<any>;
+let __state;
 
 /**
  * Translations middleware creator
@@ -97,17 +97,29 @@ let __state: IState<any>;
  * @param {boolean} passedOptions.cache - use cached dictionary
  * @param {boolean} passedOptions.updateCacheOnSwitch - request dictionary again if cached
  * @param {void} passedOptions.startSwitchCallback - callback on start switching. Takes language and store.
+ * @param {Object} initialState - initial state object
+ * @property {Object} initialState.dictionaries - hash-table of dictionaries, where key is language name and value is dictionary
+ * @property {string} initialState.currentLang - current language with fetched dictionary
+ * @property {string} initialState.loadingLang - language that user is switching to, but not fetched dictionary yet
  */
 export function createTranslationsMiddleware<D, S>(
   requestFunc: requestFunc<D>,
-  passedOptions: IOptions<S, D> = {}
+  passedOptions: IOptions<S, D> = {},
+  initialState?: Partial<IState<D>>
 ) {
-  // init state
-  __state = {
+  const defaultState: IState<D> = {
     dictionaries: {},
     currentLang: null,
     loadingLang: null,
   };
+
+  if (initialState) {
+    Object.keys(defaultState).forEach(
+      key => (__state[key] = initialState[key] || defaultState[key])
+    );
+  } else {
+    __state = defaultState;
+  }
 
   // merge default and passed options
   const options: IOptions<S, D> = {
