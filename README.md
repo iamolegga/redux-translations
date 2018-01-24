@@ -81,7 +81,7 @@ store.dispatch(switchLangActionCreator('en'));
 
 ## API
 
-### `createTranslationsMiddleware(getDictionary, [options], initialState)`
+### `createTranslationsMiddleware(getDictionary, [options], [initialState])`
 
 Function, that creates redux-middleware for translations. Has next arguments:
 
