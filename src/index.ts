@@ -69,7 +69,11 @@ const translatedComponents = new Set<React.Component<any>>();
  * Update mounted components that depends on translations
  */
 function updateTranslatedComponents() {
-  translatedComponents.forEach(comp => comp.forceUpdate());
+  return Promise.all(
+    Array.from(translatedComponents.values()).map(
+      comp => new Promise(resolve => comp.forceUpdate(resolve))
+    )
+  );
 }
 
 /**
@@ -97,7 +101,7 @@ let __state;
  * @param {boolean} passedOptions.cache - use cached dictionary
  * @param {boolean} passedOptions.updateCacheOnSwitch - request dictionary again if cached
  * @param {void} passedOptions.startSwitchCallback - callback on start switching. Takes language and store.
- * @param {Object} initialState - initial state object
+ * @param {Object} initialState - initial inner-state object
  * @property {Object} initialState.dictionaries - hash-table of dictionaries, where key is language name and value is dictionary
  * @property {string} initialState.currentLang - current language with fetched dictionary
  * @property {string} initialState.loadingLang - language that user is switching to, but not fetched dictionary yet
@@ -250,4 +254,27 @@ export default function withTranslations<P, D>(
  */
 function getDisplayName(Component) {
   return Component.displayName || Component.name || 'Component';
+}
+
+/**
+ * Patch translations inner state without dispatching redux action.
+ * Could be useful for server-side rendering or another cases
+ * where store.dispatch function is unreachable
+ * @param {Object} changes - partial inner-state object
+ * @param {boolean} updateComponents - whether to update components or not
+ * @return {Promise<void>} - Promise, resolved when all components are updated (if updateComponents === true) or immediately
+ */
+export async function patchState<D>(
+  changes: Partial<IState<D>>,
+  updateComponents?: boolean
+) {
+  if (typeof __state !== 'object') {
+    __state = {};
+  }
+
+  Object.entries(changes).forEach(([k, v]) => (__state[k] = v));
+
+  if (updateComponents) {
+    await updateTranslatedComponents();
+  }
 }
