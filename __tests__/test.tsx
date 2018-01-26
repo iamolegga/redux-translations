@@ -6,8 +6,10 @@ import withTranslations, {
   createTranslationsMiddleware,
   ITranslated,
   switchLangActionCreator,
+  patchState,
 } from '../src';
 import * as Adapter from 'enzyme-adapter-react-16';
+import { Action } from 'redux';
 
 configure({ adapter: new Adapter() });
 
@@ -21,6 +23,7 @@ interface Dictionaries {
 
 interface TestCompOwnProps {
   anotherProp: string;
+  renderCallback?: Function;
 }
 
 type TestCompProps = ITranslated<Dictionary> & TestCompOwnProps;
@@ -30,7 +33,7 @@ const dictionaries: Dictionaries = {
   it: { hello: 'ciao' },
 };
 
-class TestComp extends React.PureComponent<TestCompProps, {}> {
+class TestComp extends React.PureComponent<TestCompProps> {
   render() {
     const {
       dictionary,
@@ -38,7 +41,9 @@ class TestComp extends React.PureComponent<TestCompProps, {}> {
       loadingLang,
       switchLang,
       anotherProp,
+      renderCallback,
     } = this.props;
+    if (renderCallback) renderCallback();
     return (
       <div>
         <div id="translation">{dictionary['hello'] || null}</div>
@@ -55,12 +60,15 @@ const TranslatedComponent = withTranslations<TestCompOwnProps, Dictionary>(
   TestComp
 );
 
-const createApp = store =>
+const createApp = (store, renderCallback?) =>
   class extends React.PureComponent<{}, {}> {
     render() {
       return (
         <Provider store={store}>
-          <TranslatedComponent anotherProp="anotherProp" />
+          <TranslatedComponent
+            anotherProp="anotherProp"
+            renderCallback={renderCallback}
+          />
         </Provider>
       );
     }
@@ -99,6 +107,28 @@ test('Should render with default props for "createTranslationsMiddleware" and ch
   expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
   expect(wrapper.find('#current').text()).toBe('en');
   expect(wrapper.find('#loading').text()).toBe('');
+});
+
+test('wrapped component should not be triggered by another actions', async () => {
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
+
+  const reducer = (state: object = {}, action: any) => state;
+  const middleware = createTranslationsMiddleware(getDictionary);
+  const store = createStore(reducer, applyMiddleware(middleware));
+  const renderCallback = jest.fn();
+  const App = createApp(store, renderCallback);
+  const wrapper = mount(<App />);
+
+  expect(getDictionary).toHaveBeenCalledTimes(0);
+  expect(renderCallback).toHaveBeenCalledTimes(1);
+  expect(wrapper.find('#translation').text()).toBe('');
+  expect(wrapper.find('#current').text()).toBe('');
+  expect(wrapper.find('#loading').text()).toBe('');
+
+  store.dispatch({ type: 'some-sync-type' });
+  expect(renderCallback).toHaveBeenCalledTimes(1);
 });
 
 test('Should not request cached dictionary', async () => {
@@ -368,5 +398,119 @@ test('initialState should work for first render', async () => {
   expect(getDictionary).toHaveBeenCalledTimes(0);
   expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
   expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
+});
+
+test('patchState(newState) should not trigger update of components', async () => {
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
+
+  const reducer = (state: object = {}, action: any) => state;
+  const middleware = createTranslationsMiddleware(
+    getDictionary,
+    {},
+    {
+      dictionaries: { en: dictionaries.en },
+      currentLang: 'en',
+    }
+  );
+  const store = createStore(reducer, applyMiddleware(middleware));
+  const renderCallback = jest.fn();
+  const App = createApp(store, renderCallback);
+  const wrapper = mount(<App />);
+
+  expect(getDictionary).toHaveBeenCalledTimes(0);
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
+  expect(renderCallback).toHaveBeenCalledTimes(1);
+
+  await patchState({
+    dictionaries: { it: dictionaries.it },
+    currentLang: 'it',
+  });
+
+  expect(renderCallback).toHaveBeenCalledTimes(1);
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
+});
+
+test('patchState(newState, false) should not trigger update of components', async () => {
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
+
+  const reducer = (state: object = {}, action: any) => state;
+  const middleware = createTranslationsMiddleware(
+    getDictionary,
+    {},
+    {
+      dictionaries: { en: dictionaries.en },
+      currentLang: 'en',
+    }
+  );
+  const store = createStore(reducer, applyMiddleware(middleware));
+  const renderCallback = jest.fn();
+  const App = createApp(store, renderCallback);
+  const wrapper = mount(<App />);
+
+  expect(getDictionary).toHaveBeenCalledTimes(0);
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
+  expect(renderCallback).toHaveBeenCalledTimes(1);
+
+  await patchState(
+    {
+      dictionaries: { it: dictionaries.it },
+      currentLang: 'it',
+    },
+    false
+  );
+
+  expect(renderCallback).toHaveBeenCalledTimes(1);
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
+});
+
+test('patchState(newState, true) should trigger update of components', async () => {
+  const getDictionary = jest
+    .fn()
+    .mockImplementation(lang => Promise.resolve(dictionaries[lang]));
+
+  const reducer = (state: object = {}, action: any) => state;
+  const middleware = createTranslationsMiddleware(
+    getDictionary,
+    {},
+    {
+      dictionaries: { en: dictionaries.en },
+      currentLang: 'en',
+    }
+  );
+  const store = createStore(reducer, applyMiddleware(middleware));
+  const renderCallback = jest.fn();
+  const App = createApp(store, renderCallback);
+  const wrapper = mount(<App />);
+
+  expect(getDictionary).toHaveBeenCalledTimes(0);
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.en.hello);
+  expect(wrapper.find('#current').text()).toBe('en');
+  expect(wrapper.find('#loading').text()).toBe('');
+  expect(renderCallback).toHaveBeenCalledTimes(1);
+
+  await patchState(
+    {
+      dictionaries: { it: dictionaries.it },
+      currentLang: 'it',
+    },
+    true
+  );
+
+  expect(renderCallback).toHaveBeenCalledTimes(2);
+  expect(wrapper.find('#translation').text()).toBe(dictionaries.it.hello);
+  expect(wrapper.find('#current').text()).toBe('it');
   expect(wrapper.find('#loading').text()).toBe('');
 });

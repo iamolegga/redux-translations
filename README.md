@@ -94,7 +94,7 @@ Function, that creates redux-middleware for translations. Has next arguments:
   - `startSwitchCallback` (Function) - callback for every language switching start. Run exactly in switch event, without waiting for fetching dictionary. Takes next arguments: `loadingLang` (String) and `store`. Default `undefined`.
   - `endSwitchCallback` (Function) - callback for every language switching end. Run exactly after fetching dictionary. Takes next arguments: `loadedLang` (String), `dictionary` (Object) and `store`. Default `undefined`.
 
-3. `[initialState]` (Object) - initial state object with next optional fields:
+3. `[initialState]` (Object) - initial inner state object with next optional fields:
 
   - `dictionaries` (Object) - hash-table of dictionaries, where key is language name and value is dictionary. Default `{}`.
   - `currentLang` (String) - current language with fetched dictionary. Default `null`.
@@ -115,3 +115,15 @@ React component class wrapper that adds next props to wrapping component class (
 ### `switchLangActionCreator(language)`
 
 Redux action creator - function with one argument type of `string`, returns flux standard action (FSA), that you can dispatch whereever in your app (for example, when initialising your app).
+
+### `patchState(changes, [updateComponents])`
+
+Patch translations inner state without dispatching redux action. Could be useful for server-side rendering or another cases where `store.dispatch` function is unreachable. Returns Promise, resolved when all components are updated (if updateComponents === true) or immediately. Has next arguments:
+
+1. `changes` (Object) - partial initial inner state object with next optional fields:
+
+  - `dictionaries` (Object) - hash-table of dictionaries, where key is language name and value is dictionary.
+  - `currentLang` (String) - current language with fetched dictionary.
+  - `loadingLang` (String) - language that user is switching to, but not fetched dictionary yet.
+
+2. `updateComponents` (Boolean) - whether to update components or not.
