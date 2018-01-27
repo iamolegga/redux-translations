@@ -100,7 +100,7 @@ Function, that creates redux-middleware for translations. Has next arguments:
   - `currentLang` (String) - current language with fetched dictionary. Default `null`.
   - `loadingLang` (String) - language that user is switching to, but not fetched dictionary yet. Default `null`.
 
-### `withTranslations(ComponentClass)`
+### `withTranslations(Component, [copyStaticMethods])`
 
 React component class wrapper that adds next props to wrapping component class (actually it returns new component class):
 
@@ -111,6 +111,12 @@ React component class wrapper that adds next props to wrapping component class (
 3. `dictionary` (Object) - object, that is returned by `getDictionary`.
 
 4. `switchLang` (Function) - function, that switch language to passed one.
+
+Arguments:
+
+1. `Component` (Function) - component that depends on props, listed above.
+
+2. `copyStaticMethods` (Boolean) - whether to copy static methods of Component or not. Default `true`.
 
 ### `switchLangActionCreator(language)`
 

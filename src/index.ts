@@ -211,16 +211,18 @@ export function createTranslationsMiddleware<D, S>(
  * - loadingLang,
  * - dictionary.
  * @param {React.ComponentClass} Component - component that depends on props, listed above
+ * @param {Boolean} copyStaticMethods - whether to copy static methods of Component or not
  * @return {React.ComponentClass}
  */
 export default function withTranslations<P, D>(
-  Component: React.ComponentClass<P & ITranslated<D>>
+  Component: React.ComponentClass<P & ITranslated<D>>,
+  copyStaticMethods: boolean = true
 ): React.ComponentClass<P> {
   const ConnectedComponent = connect<null, ITranslatedDispatchProps, P>(null, {
     switchLang: switchLangActionCreator,
   })(Component);
 
-  return class Translated extends React.PureComponent<P> {
+  class Translated extends React.PureComponent<P> {
     static displayName = `withTranslations( ${getDisplayName(Component)} )`;
 
     componentDidMount() {
@@ -244,7 +246,17 @@ export default function withTranslations<P, D>(
 
       return React.createElement(ConnectedComponent, props);
     }
-  };
+  }
+
+  if (copyStaticMethods) {
+    Object.entries(Component).forEach(([k, v]) => {
+      if (typeof Translated[k] === 'undefined') {
+        Translated[k] = v;
+      }
+    });
+  }
+
+  return Translated;
 }
 
 /**
