@@ -34,6 +34,10 @@ const dictionaries: Dictionaries = {
 };
 
 class TestComp extends React.PureComponent<TestCompProps> {
+  static staticMethod = () => {
+    return 42;
+  };
+  static staticProp = 42;
   render() {
     const {
       dictionary,
@@ -78,6 +82,42 @@ test('displayName should show wrapper', () => {
   expect(TranslatedComponent.displayName).toBe(
     `withTranslations( ${TestComp.name} )`
   );
+});
+
+test('withTranslations(Component) should copy static methods', () => {
+  const Translated = withTranslations<TestCompOwnProps, Dictionary>(
+    TestComp,
+    true
+  );
+  Object.keys(TestComp)
+    .filter(k => k !== 'displayName')
+    .forEach(k => {
+      expect(Translated).toHaveProperty(k, TestComp[k]);
+    });
+});
+
+test('withTranslations(Component, true) should copy static methods', () => {
+  const Translated = withTranslations<TestCompOwnProps, Dictionary>(
+    TestComp,
+    true
+  );
+  Object.keys(TestComp)
+    .filter(k => k !== 'displayName')
+    .forEach(k => {
+      expect(Translated).toHaveProperty(k, TestComp[k]);
+    });
+});
+
+test('withTranslations(Component, false) should not copy static methods', () => {
+  const Translated = withTranslations<TestCompOwnProps, Dictionary>(
+    TestComp,
+    false
+  );
+  Object.keys(TestComp)
+    .filter(k => k !== 'displayName')
+    .forEach(k => {
+      expect(Translated).not.toHaveProperty(k);
+    });
 });
 
 test('Should render with default props for "createTranslationsMiddleware" and change lang successfully', async () => {
