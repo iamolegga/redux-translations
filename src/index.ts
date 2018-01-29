@@ -249,7 +249,22 @@ export default function withTranslations<P, D>(
   }
 
   if (copyStaticMethods) {
+    const statics = {};
+
+    // Babel/ES6 makes static methods non-enumerable.
+    Object.getOwnPropertyNames(Component)
+      .map(k => [k, Component[k]])
+      .forEach(([k, v]) => {
+        statics[k] = v;
+      });
+
+    // Get all enumerable props.
     Object.entries(Component).forEach(([k, v]) => {
+      statics[k] = v;
+    });
+
+    // Apply statics
+    Object.entries(statics).forEach(([k, v]) => {
       if (typeof Translated[k] === 'undefined') {
         Translated[k] = v;
       }
