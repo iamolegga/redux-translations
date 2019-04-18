@@ -38,7 +38,7 @@
     "@types/react-redux": "^5.0.14",
     "@types/redux": "^3.6.31",
     "codecov.io": "^0.1.6",
-    "commitizen": "^2.9.6",
+    "commitizen": "^3.1.0",
     "cz-conventional-changelog": "^2.1.0",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
