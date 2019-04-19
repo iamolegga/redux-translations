@@ -9,7 +9,6 @@ import withTranslations, {
   patchState,
 } from '../src';
 import * as Adapter from 'enzyme-adapter-react-16';
-import { Action } from 'redux';
 
 configure({ adapter: new Adapter() });
 
@@ -34,10 +33,17 @@ const dictionaries: Dictionaries = {
 };
 
 class TestComp extends React.PureComponent<TestCompProps> {
+  // React statics
+  static getDerivedStateFromProps() {
+    return null;
+  }
+  static defaultProps = {};
+  // Non-react statics
   static staticMethod = () => {
     return 42;
   };
   static staticProp = 42;
+  state = {};
   render() {
     const {
       dictionary,
@@ -59,6 +65,10 @@ class TestComp extends React.PureComponent<TestCompProps> {
     );
   }
 }
+
+const reactStaticsForTests = ['getDerivedStateFromProps', 'defaultProps'];
+const filterReactStatics = (value: string) =>
+  !reactStaticsForTests.includes(value);
 
 const TranslatedComponent = withTranslations<TestCompOwnProps, Dictionary>(
   TestComp
@@ -84,37 +94,62 @@ test('displayName should show wrapper', () => {
   );
 });
 
-test('withTranslations(Component) should copy static methods', () => {
+test('withTranslations(Component) should copy non-react statics', () => {
   const Translated = withTranslations<TestCompOwnProps, Dictionary>(
     TestComp,
     true
   );
+
   Object.keys(TestComp)
-    .filter(k => k !== 'displayName')
+    .filter(filterReactStatics)
     .forEach(k => {
       expect(Translated).toHaveProperty(k, TestComp[k]);
     });
 });
 
-test('withTranslations(Component, true) should copy static methods', () => {
+test('withTranslations(Component) should not copy react statics', () => {
   const Translated = withTranslations<TestCompOwnProps, Dictionary>(
     TestComp,
     true
   );
+
+  reactStaticsForTests.forEach(k => {
+    expect(Translated).not.toHaveProperty(k);
+  });
+});
+
+test('withTranslations(Component, true) should copy non-react statics', () => {
+  const Translated = withTranslations<TestCompOwnProps, Dictionary>(
+    TestComp,
+    true
+  );
+
   Object.keys(TestComp)
-    .filter(k => k !== 'displayName')
+    .filter(filterReactStatics)
     .forEach(k => {
       expect(Translated).toHaveProperty(k, TestComp[k]);
     });
 });
 
-test('withTranslations(Component, false) should not copy static methods', () => {
+test('withTranslations(Component, true) should not copy react statics', () => {
+  const Translated = withTranslations<TestCompOwnProps, Dictionary>(
+    TestComp,
+    true
+  );
+
+  reactStaticsForTests.forEach(k => {
+    expect(Translated).not.toHaveProperty(k);
+  });
+});
+
+test('withTranslations(Component, false) should not copy statics', () => {
   const Translated = withTranslations<TestCompOwnProps, Dictionary>(
     TestComp,
     false
   );
+
   Object.keys(TestComp)
-    .filter(k => k !== 'displayName')
+    .filter(filterReactStatics)
     .forEach(k => {
       expect(Translated).not.toHaveProperty(k);
     });
