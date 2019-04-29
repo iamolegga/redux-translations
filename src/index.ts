@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import * as hoistNonReactStatics from 'hoist-non-react-statics';
+import * as React from "react";
+import { connect } from "react-redux";
+import * as hoistNonReactStatics from "hoist-non-react-statics";
 
 export type IAction = Redux.Action & { payload: string };
 
@@ -47,7 +47,7 @@ export interface ITranslated<D>
 /**
  * Type for FSA Action
  */
-const switchLangActionType = 'REDUX_TRANSLATIONS_SWITCH_LANG';
+const switchLangActionType = "REDUX_TRANSLATIONS_SWITCH_LANG";
 
 /**
  * FSA Action creator
@@ -58,7 +58,7 @@ export const switchLangActionCreator: Redux.ActionCreator<
   IAction
 > = language => ({
   type: switchLangActionType,
-  payload: language,
+  payload: language
 });
 
 /**
@@ -84,7 +84,7 @@ function updateTranslatedComponents() {
  */
 const defaultOptions: IOptions<any, any> = {
   cache: true,
-  updateCacheOnSwitch: false,
+  updateCacheOnSwitch: false
 };
 
 /**
@@ -115,7 +115,7 @@ export function createTranslationsMiddleware<D, S>(
   const defaultState: IState<D> = {
     dictionaries: {},
     currentLang: null,
-    loadingLang: null,
+    loadingLang: null
   };
 
   __state = defaultState as IState<D>;
@@ -129,17 +129,17 @@ export function createTranslationsMiddleware<D, S>(
   // merge default and passed options
   const options: IOptions<S, D> = {
     ...defaultOptions,
-    ...passedOptions,
+    ...passedOptions
   };
 
   return store => next => action => {
     if (action.type === switchLangActionType) {
       const switchingLang = action.payload;
 
-      if (typeof switchingLang !== 'string') {
+      if (typeof switchingLang !== "string") {
         throw new Error(
-          'switchLangActionCreator and switchLang property ' +
-            'should be called with argument typeof string.'
+          "switchLangActionCreator and switchLang property " +
+            "should be called with argument typeof string."
         );
       }
 
@@ -148,7 +148,7 @@ export function createTranslationsMiddleware<D, S>(
         return next(action);
       }
 
-      if (typeof options.startSwitchCallback === 'function') {
+      if (typeof options.startSwitchCallback === "function") {
         options.startSwitchCallback(switchingLang, store);
       }
 
@@ -159,7 +159,7 @@ export function createTranslationsMiddleware<D, S>(
         // ... and clear loadingLang for race condition
         __state.loadingLang = null;
 
-        if (typeof options.endSwitchCallback === 'function') {
+        if (typeof options.endSwitchCallback === "function") {
           options.endSwitchCallback(
             switchingLang,
             __state.dictionaries[switchingLang],
@@ -191,7 +191,7 @@ export function createTranslationsMiddleware<D, S>(
             __state.currentLang = switchingLang;
             __state.loadingLang = null;
 
-            if (typeof options.endSwitchCallback === 'function') {
+            if (typeof options.endSwitchCallback === "function") {
               options.endSwitchCallback(switchingLang, dictionary, store);
             }
 
@@ -211,17 +211,23 @@ export function createTranslationsMiddleware<D, S>(
  * - currentLang,
  * - loadingLang,
  * - dictionary.
- * @param {React.ComponentClass} Component - component that depends on props, listed above
+ * @param {(React.ComponentClass<P & ITranslated<D>>
+ *     | React.FC<P & ITranslated<D>>)} Component - component that depends on props, listed above
  * @param {Boolean} copyStaticMethods - whether to copy static methods of Component or not
  * @return {React.ComponentClass}
  */
 export default function withTranslations<P, D>(
-  Component: React.ComponentClass<P & ITranslated<D>>,
+  Component:
+    | React.ComponentClass<P & ITranslated<D>>
+    | React.FC<P & ITranslated<D>>,
   copyStaticMethods: boolean = true
 ): React.ComponentClass<P> {
-  const ConnectedComponent = connect<null, ITranslatedDispatchProps, P>(null, {
-    switchLang: switchLangActionCreator,
-  })(Component);
+  const ConnectedComponent = connect<null, ITranslatedDispatchProps, P>(
+    null,
+    {
+      switchLang: switchLangActionCreator
+    }
+  )(Component);
 
   class Translated extends React.PureComponent<P> {
     static displayName = `withTranslations( ${getDisplayName(Component)} )`;
@@ -242,7 +248,7 @@ export default function withTranslations<P, D>(
       const props = Object.assign({}, this.props, {
         currentLang,
         loadingLang,
-        dictionary,
+        dictionary
       });
 
       return React.createElement(ConnectedComponent, props);
@@ -262,7 +268,7 @@ export default function withTranslations<P, D>(
  * @return {string}
  */
 function getDisplayName(Component) {
-  return Component.displayName || Component.name || 'Component';
+  return Component.displayName || Component.name || "Component";
 }
 
 /**
@@ -277,7 +283,7 @@ export async function patchState<D>(
   changes: Partial<IState<D>>,
   updateComponents?: boolean
 ) {
-  if (typeof __state !== 'object') {
+  if (typeof __state !== "object") {
     __state = {};
   }
 
