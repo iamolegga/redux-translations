@@ -48,7 +48,7 @@
     "prettier": "^1.17.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-redux": "^5.1.1",
+    "react-redux": "^7.1.0",
     "react-test-renderer": "^16.8.6",
     "redux": "^3.7.2",
     "semantic-release": "^12.4.1",
