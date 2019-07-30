@@ -51,7 +51,7 @@
     "react-redux": "^5.1.1",
     "react-test-renderer": "^16.8.6",
     "redux": "^3.7.2",
-    "semantic-release": "^12.4.1",
+    "semantic-release": "^15.13.19",
     "ts-jest": "^22.4.6",
     "typescript": "3.4.4"
   },
